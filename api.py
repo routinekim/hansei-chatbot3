@@ -3,6 +3,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
+import requests
+from bs4 import BeautifulSoup
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # LangChain 관련 모듈
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -54,13 +58,61 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     answer: str
 
+def scrape_academic_schedule():
+    url = "https://www.hansei.ac.kr/kor/302/subview.do"
+    try:
+        response = requests.get(url, verify=False, timeout=10)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        items = soup.select('.calendar_list dl')
+        if not items:
+            return "현재 한세대학교 홈페이지에서 학사일정을 불러올 수 없습니다."
+            
+        res = "📅 **[현재 학사일정 (1월~12월)]**\n\n"
+        for item in items:
+            month = item.find('dt')
+            if month:
+                res += f"**{month.get_text(strip=True)}**\n"
+            
+            events = item.find_all('li')
+            if not events:
+                res += "- 일정이 없습니다.\n"
+            for event in events:
+                date_elem = event.find('span', class_='date')
+                date_str = f"[{date_elem.text.strip()}]" if date_elem else ""
+                
+                title_elem = event.find('a')
+                if not title_elem:
+                    title_elem = event.find('div')
+                
+                if title_elem:
+                    title_str = title_elem.text.strip()
+                else:
+                    # 필요없는 날짜 텍스트를 중복으로 가져오지 않도록 span.date 제거 후 텍스트 추출
+                    if date_elem:
+                        date_elem.extract()
+                    title_str = event.get_text(strip=True)
+                
+                res += f"• {date_str} {title_str}\n"
+            res += "\n"
+        return res.strip()
+    except Exception as e:
+        print(f"Scraping error: {e}")
+        return "홈페이지 연결 지연으로 학사일정을 불러오지 못했습니다."
+
 @app.post("/chat", response_model=QueryResponse)
 def chat_endpoint(request: QueryRequest):
     """실제 프론트엔드 앱이 질문을 던지는 API 주소입니다."""
+    prompt = request.query
+    
+    # 1. 가로채기: 학사일정 크롤링 (띄어쓰기 무시하고 검사)
+    if "학사일정" in prompt.replace(" ", ""):
+        schedule_text = scrape_academic_schedule()
+        return QueryResponse(answer=schedule_text)
+        
     if global_retriever is None:
         raise HTTPException(status_code=500, detail="서버에 학칙 데이터가 로드되지 않았습니다.")
-    
-    prompt = request.query
     
     try:
         # 관련 문서 검색

@@ -66,9 +66,16 @@ def load_data():
     else:
         print("오류: 지식 베이스(RAG)로 사용할 데이터가 하나도 없습니다.")
 
+from typing import List, Optional
+
+class Message(BaseModel):
+    role: str
+    content: str
+
 # 프론트엔드에서 보낼 질문 데이터 구조
 class QueryRequest(BaseModel):
     query: str
+    history: Optional[List[Message]] = []
 
 class QueryResponse(BaseModel):
     answer: str
@@ -192,13 +199,25 @@ def chat_endpoint(request: QueryRequest):
         raise HTTPException(status_code=500, detail="서버에 학칙 데이터가 로드되지 않았습니다.")
     
     try:
-        # 관련 문서 검색
+        # 2. 다중 대화의 문맥 파악
+        history_text = ""
+        if hasattr(request, 'history') and request.history:
+            for msg in request.history[-4:]: # 최대 최근 4개 문답만 컨텍스트로 사용
+                role_name = "학생" if msg.role == "user" else "상담원"
+                history_text += f"[{role_name}] {msg.content}\n"
+                
+        # 검색용 쿼리는 현재 문맥(이전 질문)을 포함시킬 수도 있으나 단순하게 유지
         relevant_docs = global_retriever.invoke(prompt)
         context = "\n".join([d.page_content for d in relevant_docs])
         
-        # LLM 호출
+        # 3. LLM 호출 시 프롬프트에 문맥 포함
         llm = ChatOpenAI(model="gpt-4o", temperature=0)
-        full_prompt = f"당신은 한세대학교 학부생 상담원입니다. 아래 학칙을 바탕으로 친절하고 자연스럽게 답하세요.\n\n[관련 학칙]\n{context}\n\n[학생 질문]\n{prompt}"
+        
+        full_prompt = "당신은 한세대학교 학부생 상담원입니다. 아래 학칙 및 지침을 바탕으로 당당하고 친절하게 답하세요.\n"
+        if history_text:
+            full_prompt += f"\n[이전 대화 기록]\n{history_text}\n(위의 이전 대화의 문맥을 이어서 학생의 질문에 답변하세요.)\n"
+            
+        full_prompt += f"\n[관련 학칙 및 정보]\n{context}\n\n[학생 질문]\n{prompt}"
         
         response = llm.invoke(full_prompt)
         

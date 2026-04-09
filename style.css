@@ -74,6 +74,12 @@ body {
     object-fit: contain;
 }
 
+.header-bot-logo {
+    height: 44px; /* 로봇 아이콘 크기 최적화 (기존 텍스트 영역에 맞춤) */
+    width: auto;
+    object-fit: contain;
+}
+
 .icon-btn {
     background: none;
     border: none;

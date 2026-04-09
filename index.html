@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>한세대학교 챗봇</title>
+    <!-- 폰트 적용 (Pretendard) -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="style.css">
+    <!-- 아이콘 라이브러리 (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div id="mobile-frame">
+        <!-- 상단 헤더 -->
+        <header class="chat-header">
+            <button class="icon-btn" aria-label="메뉴"><i data-lucide="menu"></i></button>
+            <h1>Hansei 챗봇</h1>
+            <button class="icon-btn" aria-label="닫기"><i data-lucide="x"></i></button>
+        </header>
+
+        <!-- 채팅 영역 -->
+        <main class="chat-scroll-area" id="chatbox">
+            <!-- 날짜 구분선 -->
+            <div class="date-divider"><span>오늘</span></div>
+
+            <!-- 봇 환영 메시지 -->
+            <div class="message-row bot-row">
+                <div class="bot-avatar">
+                    <i data-lucide="bot"></i>
+                </div>
+                <div class="message-bubble bot-bubble">
+                    이 챗봇은 한세대학교 공식 학칙을 기반으로 답변합니다.<br><br>
+                    화면 맨 아래로 내려가서 궁금한 점을 입력하세요.<br>
+                    질문이 구체적일수록 정확한 답변이 나옵니다!<br><br>
+                    💡 학부생 추천 질문<br>
+                    • 졸업 이수 학점과 채플 횟수는?<br>
+                    • 다른 학과로 전과하는 방법과 시기는?<br>
+                    • 성적 장학금을 받기 위한 최소 기준은?<br>
+                    • 일반 휴학은 최대 몇 학기까지 가능해?<br>
+                    • 재수강 시 성적 상한선이 있어?
+                </div>
+            </div>
+
+            <!-- 퀵 메뉴 영역 (자주하는 질문) -->
+            <div class="quick-menu-wrapper">
+                <div class="quick-menu-title">자주하는 질문</div>
+                <div class="quick-menu-grid">
+                    <button class="quick-card" onclick="sendQuickMessage('학사일정')">
+                        <div class="quick-icon"><i data-lucide="calendar"></i></div>
+                        <span>학사일정</span>
+                    </button>
+                    <button class="quick-card" onclick="sendQuickMessage('장학금')">
+                        <div class="quick-icon"><i data-lucide="graduation-cap"></i></div>
+                        <span>장학금</span>
+                    </button>
+                    <button class="quick-card" onclick="sendQuickMessage('증명서')">
+                        <div class="quick-icon"><i data-lucide="file-text"></i></div>
+                        <span>증명서</span>
+                    </button>
+                    <button class="quick-card" onclick="sendQuickMessage('학사정보')">
+                        <div class="quick-icon"><i data-lucide="book-open"></i></div>
+                        <span>학사정보</span>
+                    </button>
+                    <button class="quick-card" onclick="sendQuickMessage('교내 인터넷 사용')">
+                        <div class="quick-icon"><i data-lucide="wifi"></i></div>
+                        <span>인터넷</span>
+                    </button>
+                    <button class="quick-card" onclick="sendQuickMessage('주요 전화번호')">
+                        <div class="quick-icon"><i data-lucide="phone"></i></div>
+                        <span>전화번호</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 하단 입력창 -->
+        <footer class="chat-footer">
+            <button class="plus-btn"><i data-lucide="plus"></i></button>
+            <div class="input-container">
+                <input type="text" id="chatInput" placeholder="질문을 입력해주세요..." onkeypress="handleEnter(event)">
+                <button class="send-btn" onclick="sendMessage()"><i data-lucide="send"></i></button>
+            </div>
+        </footer>
+    </div>
+    
+    <script src="app.js"></script>
+    <script>
+        // Lucide 아이콘 렌더링
+        lucide.createIcons();
+    </script>
+</body>
+</html>

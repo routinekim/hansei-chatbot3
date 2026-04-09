@@ -1,0 +1,327 @@
+/* Reset & Base */
+:root {
+    --primary: #04447c;      /* Hansei Blue */
+    --secondary: #203546;    /* Deep Navy */
+    --point: #5095d2;        /* Light Blue */
+    --bg-color: #ffffff;     /* Page Background (White) */
+    --surface: #ffffff;
+    --text-main: #333333;
+    --text-sub: #777777;
+    --border: #e2e8f0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background-color: var(--bg-color);
+    margin: 0;
+    overflow: hidden; /* Prevent body scroll to keep chat app feel */
+}
+
+/* App Container (Fluid Full Screen) */
+#mobile-frame {
+    width: 100%;
+    height: 100vh;
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Header */
+.chat-header {
+    background-color: var(--primary);
+    color: white;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.chat-header h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.header-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* 텍스트와 이미지 사이 간격 */
+    flex: 1; /* 양쪽 여백을 밀어내고 가운데 차지 */
+    overflow: hidden;
+}
+
+.header-logo-left {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+
+.header-logo-right {
+    height: 20px; /* 옆으로 긴 영문 슬로건이므로 높이를 살짝 낮춤 */
+    width: auto;
+    object-fit: contain;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* Chat Area */
+.chat-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    
+    /* 화면이 넓어져도 내용이 가운데로 예쁘게 모이도록 최대 너비 설정 */
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Date Divider */
+.date-divider {
+    text-align: center;
+    margin: 10px 0;
+    position: relative;
+}
+
+.date-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: var(--border);
+    z-index: 1;
+}
+
+.date-divider span {
+    background-color: var(--bg-color);
+    padding: 0 12px;
+    color: var(--text-sub);
+    font-size: 0.8rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Message Rows */
+.message-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.bot-row {
+    justify-content: flex-start;
+}
+
+.user-row {
+    justify-content: flex-end;
+}
+
+.bot-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.bot-avatar i {
+    width: 20px;
+    height: 20px;
+}
+
+/* Bubbles */
+.message-bubble {
+    max-width: 75%;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    border-radius: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.bot-bubble {
+    background-color: #EBF2FA; /* 중앙대 챗봇 스타일의 연한 스카이블루 */
+    color: var(--text-main); /* 연한 배경이므로 텍스트는 어둡게 */
+    border-top-left-radius: 4px;
+}
+
+.user-bubble {
+    background-color: var(--primary);
+    color: white;
+    border-top-right-radius: 4px;
+}
+
+/* Quick Menu Wrapper */
+.quick-menu-wrapper {
+    background-color: #EBF2FA; /* 말풍선과 동일하게 연한 스카이블루 배경 적용 */
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 4px;
+    margin-left: 46px; /* 봇 말풍선 위치와 정렬 */
+    max-width: 400px;
+}
+
+/* Quick Menu Title */
+.quick-menu-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--secondary);
+    margin-bottom: 12px;
+}
+
+/* Quick Menu Grid */
+.quick-menu-grid {
+    display: grid;
+    /* 가로 3개 배치 (3x2 비율) */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px; /* 크기가 작아지므로 간격도 조금 줄임 */
+    width: 100%;
+}
+
+.quick-card {
+    background-color: var(--bg-color); /* 컨테이너가 흰색이므로 카드는 살짝 회색빛(배경색)을 띄게 */
+    border: 1px solid var(--border);
+    border-radius: 10px; /* 라운드 살짝 줄임 */
+    padding: 10px 8px; /* 패딩을 줄여서 크기 작게 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+
+.quick-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(4, 68, 124, 0.1);
+    border-color: var(--point);
+}
+
+.quick-icon {
+    width: 32px; /* 넓이 작게 */
+    height: 32px; /* 높이 작게 */
+    background-color: var(--bg-color);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quick-icon i {
+    width: 18px; /* 아이콘 크기 줄임 */
+    height: 18px;
+}
+
+.quick-card span {
+    font-size: 0.75rem; /* 폰트 사이즈 작게 */
+    font-weight: 600;
+    color: var(--secondary);
+    text-align: center;
+    word-break: keep-all; /* 단어 쪼개짐 방지 */
+}
+
+/* Footer / Input Area */
+.chat-footer {
+    background-color: var(--surface);
+    padding: 12px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    border-top: 1px solid var(--border);
+}
+
+.plus-btn {
+    background: none;
+    border: none;
+    color: var(--text-sub);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background-color: rgba(0,0,0,0.04);
+    border-radius: 24px;
+    padding: 4px 4px 4px 16px;
+}
+
+#chatInput {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--text-main);
+}
+
+#chatInput::placeholder {
+    color: #999;
+}
+
+.send-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.send-btn i {
+    width: 18px;
+    height: 18px;
+    margin-right: 2px; /* Visual center adjustment */
+}
+
+.send-btn:hover {
+    background-color: var(--secondary);
+}

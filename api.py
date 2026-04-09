@@ -10,7 +10,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # LangChain 관련 모듈
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_community.vectorstores import DocArrayInMemorySearch
 
 # 환경변수 로드 (.env 파일에 OPENAI_API_KEY 설정 필요)
@@ -32,24 +32,39 @@ global_retriever = None
 
 @app.on_event("startup")
 def load_data():
-    """서버가 켜질 때 '학부생' 기준으로 학칙 데이터를 한 번만 로드합니다."""
+    """서버가 켜질 때 '학부생 학칙'과 '장학금 텍스트' 데이터를 로드합니다."""
     global global_retriever
     
     if "OPENAI_API_KEY" not in os.environ:
         print("경고: OPENAI_API_KEY가 설정되지 않았습니다.")
         
+    docs = []
+        
     target_file = "학부학칙.pdf"
     print(f"{target_file} 데이터를 로드 중입니다...")
-    
     if os.path.exists(target_file):
         loader = PyPDFLoader(target_file)
-        docs = loader.load()
+        docs.extend(loader.load())
+        print(f"{target_file} 로드 완료!")
+    else:
+        print(f"오류: {target_file} 파일이 실행 폴더에 없습니다. 반드시 파일을 준비해주세요.")
+        
+    scholarship_file = "scholarship.txt"
+    print(f"{scholarship_file} 데이터를 로드 중입니다...")
+    if os.path.exists(scholarship_file):
+        loader2 = TextLoader(scholarship_file, encoding='utf-8')
+        docs.extend(loader2.load())
+        print(f"{scholarship_file} 로드 완료!")
+    else:
+        print(f"경고: {scholarship_file} 파일이 실행 폴더에 없습니다.")
+
+    if docs:
         embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
         temp_db = DocArrayInMemorySearch.from_documents(docs, embeddings)
         global_retriever = temp_db.as_retriever()
-        print("데이터 로딩 완료!")
+        print("모든 지식 베이스 데이터 결합 및 로딩 완료!")
     else:
-        print(f"오류: {target_file} 파일이 실행 폴더에 없습니다. 반드시 파일을 준비해주세요.")
+        print("오류: 지식 베이스(RAG)로 사용할 데이터가 하나도 없습니다.")
 
 # 프론트엔드에서 보낼 질문 데이터 구조
 class QueryRequest(BaseModel):

@@ -1,3 +1,6 @@
+// 챗봇 이전 대화 기억(Context Memory) (최대 8개)
+let chatHistory = [];
+
 function handleEnter(event) {
     if (event.key === 'Enter') {
         sendMessage();
@@ -34,7 +37,7 @@ async function fetchChatResponse(text) {
     
     const bubble = document.createElement('div');
     bubble.className = 'message-bubble bot-bubble';
-    bubble.textContent = '잠시만 기다려주세요. 자료를 분석 중입니다... 👀';
+    bubble.textContent = '규정을 검토 중입니다... 👀';
     
     row.appendChild(avatar);
     row.appendChild(bubble);
@@ -44,14 +47,22 @@ async function fetchChatResponse(text) {
 
     // 서버에 요청 전송
     try {
-        const response = await fetch('https://hansei-chatbot3.onrender.com/chat', {
+        const response = await fetch('http://localhost:8000/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: text })
+            body: JSON.stringify({ query: text, history: chatHistory })
         });
         
         if (!response.ok) throw new Error('서버 에러');
         const data = await response.json();
+        
+        // 대화 기록 저장 (어시스턴트 응답과 함께)
+        chatHistory.push({ role: 'user', content: text });
+        chatHistory.push({ role: 'assistant', content: data.answer });
+        // 최근 8개 대화만 유지
+        if (chatHistory.length > 8) {
+            chatHistory = chatHistory.slice(-8);
+        }
         
         // 줄바꿈 문자를 <br>로 치환하여 말풍선 갱신
         bubble.innerHTML = data.answer.replace(/\n/g, '<br>');

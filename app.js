@@ -37,7 +37,7 @@ async function fetchChatResponse(text) {
     
     const bubble = document.createElement('div');
     bubble.className = 'message-bubble bot-bubble';
-    bubble.textContent = '규정을 검토 중입니다... 👀';
+    bubble.textContent = '자료를 검토 중입니다...잠시만 기다려주세요 👀';
     
     row.appendChild(avatar);
     row.appendChild(bubble);

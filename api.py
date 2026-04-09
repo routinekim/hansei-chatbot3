@@ -58,6 +58,15 @@ def load_data():
     else:
         print(f"경고: {scholarship_file} 파일이 실행 폴더에 없습니다.")
 
+    phone_file = "phone_directory.txt"
+    print(f"{phone_file} 데이터를 로드 중입니다...")
+    if os.path.exists(phone_file):
+        loader3 = TextLoader(phone_file, encoding='utf-8')
+        docs.extend(loader3.load())
+        print(f"{phone_file} 로드 완료!")
+    else:
+        print(f"경고: {phone_file} 파일이 실행 폴더에 없습니다.")
+
     if docs:
         embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
         temp_db = DocArrayInMemorySearch.from_documents(docs, embeddings)

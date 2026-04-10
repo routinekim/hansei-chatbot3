@@ -12,6 +12,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_community.vectorstores import DocArrayInMemorySearch
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # 환경변수 로드 (.env 파일에 OPENAI_API_KEY 설정 필요)
 load_dotenv()
@@ -68,9 +69,22 @@ def load_data():
         print(f"경고: {phone_file} 파일이 실행 폴더에 없습니다.")
 
     if docs:
+        # 1. 텍스트 분할기 설정 (1000자 단위로 자르고, 200자 겹치도록 설정)
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=200,
+            separators=["\n\n", "\n", " ", ""]
+        )
+        # 2. 로드된 전체 문서를 조각(Chunk)으로 분할
+        split_docs = text_splitter.split_documents(docs)
+        print(f"총 {len(docs)}개의 원본 문서가 {len(split_docs)}개의 조각으로 분할되었습니다.")
+
+        # 3. 조각난 문서를 벡터 DB에 넣기
         embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-        temp_db = DocArrayInMemorySearch.from_documents(docs, embeddings)
-        global_retriever = temp_db.as_retriever()
+        temp_db = DocArrayInMemorySearch.from_documents(split_docs, embeddings)
+        
+        # 4. retriever 설정 시 k값을 기본 4에서 15로 증가시켜 더 많은 데이터를 가져오게 합니다.
+        global_retriever = temp_db.as_retriever(search_kwargs={"k": 15})
         print("모든 지식 베이스 데이터 결합 및 로딩 완료!")
     else:
         print("오류: 지식 베이스(RAG)로 사용할 데이터가 하나도 없습니다.")
